@@ -20,17 +20,17 @@ class UsageScanner
     /**
      * @var array<int, ScannerInterface>
      */
-    private array $scanners = [];
+    private array $scanners;
 
     /**
      * @var array<int, string>
      */
-    private array $excludeDirectories = [];
+    private array $excludeDirectories;
 
     /**
      * @var array<int, string>
      */
-    private array $filePatterns = [];
+    private array $filePatterns;
 
     /**
      * @var array<string, true>

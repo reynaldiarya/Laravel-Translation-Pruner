@@ -71,7 +71,7 @@ afterEach(function () {
 
         /** @var SplFileInfo $file */
         foreach ($files as $file) {
-            $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
+            $file->isDir() ? rmdir($file->getRealPath()) : Illuminate\Support\Facades\File::delete($file->getRealPath());
         }
 
         rmdir($this->tempDir);

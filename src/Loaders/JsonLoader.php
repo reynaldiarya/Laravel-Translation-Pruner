@@ -48,7 +48,7 @@ class JsonLoader implements LoaderInterface
         unset($translations[$key]);
 
         if (empty($translations)) {
-            return unlink($file);
+            return \Illuminate\Support\Facades\File::delete($file);
         }
 
         return $this->save($file, $translations);

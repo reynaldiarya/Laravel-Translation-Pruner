@@ -53,7 +53,7 @@ class PhpArrayLoader implements LoaderInterface
         $translations = $this->pruneEmptyBranches($translations);
 
         if (empty($translations)) {
-            return unlink($file);
+            return \Illuminate\Support\Facades\File::delete($file);
         }
 
         return $this->save($file, $translations);

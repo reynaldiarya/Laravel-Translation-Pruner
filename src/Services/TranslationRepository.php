@@ -16,7 +16,7 @@ class TranslationRepository
     /**
      * @var array<int, LoaderInterface>
      */
-    private array $loaders = [];
+    private array $loaders;
 
     private string $langPath;
 

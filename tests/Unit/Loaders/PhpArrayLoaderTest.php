@@ -14,7 +14,7 @@ beforeEach(function () {
 afterEach(function () {
     /** @var VildanBina\TranslationPruner\Tests\TestCase $this */
     if (file_exists($this->testFile)) {
-        unlink($this->testFile);
+        Illuminate\Support\Facades\File::delete($this->testFile);
     }
     if (is_dir($this->tempDir)) {
         rmdir($this->tempDir);

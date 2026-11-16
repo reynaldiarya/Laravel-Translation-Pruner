@@ -13,7 +13,7 @@ beforeEach(function () {
 afterEach(function () {
     /** @var VildanBina\TranslationPruner\Tests\TestCase $this */
     if ($this->tempJson !== '' && file_exists($this->tempJson)) {
-        unlink($this->tempJson);
+        Illuminate\Support\Facades\File::delete($this->tempJson);
     }
 });
 
@@ -71,7 +71,7 @@ it('handles unreadable and unsavable files', function () {
     expect($loader->load($unreadable))->toBe([]);
     restore_error_handler();
     chmod($unreadable, 0644);
-    unlink($unreadable);
+    Illuminate\Support\Facades\File::delete($unreadable);
 
     $resource = fopen('php://temp', 'r');
     if ($resource === false) {

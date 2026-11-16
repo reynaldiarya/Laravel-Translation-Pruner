@@ -19,7 +19,7 @@ afterEach(function () {
 });
 
 it('can scan for translations', function () {
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan();
 
     expect($result)->toHaveKey('total')
@@ -44,14 +44,14 @@ it('finds unused translations', function () {
     mkdir($testDir, 0755, true);
     file_put_contents($testDir.'/test.php', "<?php echo __('messages.welcome');");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     expect($result['unused'])->toBe(1)
         ->and($result['unused_keys'])->toHaveKey('messages.unused');
 
     // Cleanup
-    unlink($testDir.'/test.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/test.php');
     rmdir($testDir);
 });
 
@@ -68,14 +68,14 @@ it('identifies used translations', function () {
     mkdir($testDir, 0755, true);
     file_put_contents($testDir.'/test.php', "<?php echo __('messages.welcome');");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     expect($result['used'])->toBe(1)
         ->and($result['unused'])->toBe(0);
 
     // Cleanup
-    unlink($testDir.'/test.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/test.php');
     rmdir($testDir);
 });
 
@@ -88,7 +88,7 @@ it('handles JSON translations', function () {
     mkdir($testDir, 0755, true);
     file_put_contents($testDir.'/test.php', "<?php echo __('Welcome');");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     expect($result['total'])->toBe(2)
@@ -96,7 +96,7 @@ it('handles JSON translations', function () {
         ->and($result['unused'])->toBe(1);
 
     // Cleanup
-    unlink($testDir.'/test.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/test.php');
     rmdir($testDir);
 });
 
@@ -124,14 +124,14 @@ it('detects translations in react files', function () {
     }
     JSX);
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     expect($result['unused_keys'])->toHaveKey('messages.react_unused')
         ->and($result['unused_keys'])->not->toHaveKey('messages.react_used')
         ->and($result['unused_keys'])->not->toHaveKey('messages.react_translated');
 
-    unlink($testDir.'/Component.jsx');
+    Illuminate\Support\Facades\File::delete($testDir.'/Component.jsx');
     rmdir($testDir);
 });
 
@@ -147,13 +147,13 @@ it('detects translations in livewire blade attributes', function () {
     mkdir($testDir, 0755, true);
     file_put_contents($testDir.'/component.blade.php', "<div :title=\"__('messages.tooltip')\"></div>");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     expect($result['unused_keys'])->toHaveKey('messages.unused')
         ->and($result['unused_keys'])->not->toHaveKey('messages.tooltip');
 
-    unlink($testDir.'/component.blade.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/component.blade.php');
     rmdir($testDir);
 });
 
@@ -170,14 +170,14 @@ it('respects exclusion patterns', function () {
     mkdir($testDir, 0755, true);
     file_put_contents($testDir.'/test.php', "<?php echo 'test';");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     // Should not find them as unused because they're excluded
     expect($result['unused'])->toBe(0);
 
     // Cleanup
-    unlink($testDir.'/test.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/test.php');
     rmdir($testDir);
 });
 
@@ -188,17 +188,17 @@ it('falls back to default paths and exclusions when configuration is invalid', f
     $fallbackJson = lang_path('fallback.json');
     file_put_contents($fallbackJson, json_encode(['fallback_key' => 'value']));
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan();
 
     expect($result['total'])->toBeGreaterThan(0)
         ->and(array_key_exists('fallback_key', $result['unused_keys']))->toBeTrue();
 
-    unlink($fallbackJson);
+    Illuminate\Support\Facades\File::delete($fallbackJson);
 });
 
 it('skips invalid metadata during prune operations', function () {
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
 
     $deleted = $pruner->prune([
         'messages.invalid' => [
@@ -221,7 +221,7 @@ it('can prune translations in dry run mode', function () {
     mkdir($testDir, 0755, true);
     file_put_contents($testDir.'/test.php', "<?php echo __('messages.welcome');");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     $deleted = $pruner->prune($result['unused_keys'], dryRun: true);
@@ -232,7 +232,7 @@ it('can prune translations in dry run mode', function () {
     expect(file_exists($enDir.'/messages.php'))->toBeTrue();
 
     // Cleanup
-    unlink($testDir.'/test.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/test.php');
     rmdir($testDir);
 });
 
@@ -248,7 +248,7 @@ it('can actually delete unused translations', function () {
     mkdir($testDir, 0755, true);
     file_put_contents($testDir.'/test.php', "<?php echo __('messages.welcome');");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     $deleted = $pruner->prune($result['unused_keys'], dryRun: false);
@@ -261,7 +261,7 @@ it('can actually delete unused translations', function () {
         ->and($translations)->not->toHaveKey('unused');
 
     // Cleanup
-    unlink($testDir.'/test.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/test.php');
     rmdir($testDir);
 });
 
@@ -277,7 +277,7 @@ it('removes nested translations completely', function () {
     mkdir($testDir, 0755, true);
     file_put_contents($testDir.'/noop.php', "<?php echo 'noop';");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan([$testDir]);
 
     expect($result['unused_keys'])->toHaveKey('messages.nested.child');
@@ -287,7 +287,7 @@ it('removes nested translations completely', function () {
 
     expect(file_exists($enDir.'/messages.php'))->toBeFalse();
 
-    unlink($testDir.'/noop.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/noop.php');
     rmdir($testDir);
 });
 
@@ -300,7 +300,7 @@ it('falls back to the original key when key path metadata is missing', function 
     $file = $enDir.'/messages.php';
     file_put_contents($file, "<?php\n\nreturn ['orphan' => 'value'];");
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
 
     $deleted = $pruner->prune([
         'messages.orphan' => [
@@ -334,16 +334,16 @@ it('uses configured paths when scanning without explicit arguments', function ()
     config()->set('translation-pruner.paths', [$scanDir]);
     config()->set('translation-pruner.exclude', []);
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
     $result = $pruner->scan();
 
     expect($result['unused'])->toBe(1)
         ->and($result['unused_keys'])->toHaveKey('messages.orphan')
         ->and($result['unused_keys'])->not->toHaveKey('messages.used');
 
-    unlink($scanDir.'/usage.php');
+    Illuminate\Support\Facades\File::delete($scanDir.'/usage.php');
     rmdir($scanDir);
-    unlink($enDir.'/messages.php');
+    Illuminate\Support\Facades\File::delete($enDir.'/messages.php');
 
     config()->set('translation-pruner.paths', $originalPaths);
     config()->set('translation-pruner.exclude', $originalExclude);
@@ -355,7 +355,7 @@ it('skips removal attempts when no loader can handle the target file', function 
         mkdir($enDir, 0755, true);
     }
 
-    $pruner = app(TranslationPruner::class);
+    $pruner = resolve(TranslationPruner::class);
 
     $deleted = $pruner->prune([
         'messages.ghost' => [
@@ -390,8 +390,8 @@ it('uses injected fallback paths when configuration and inputs are empty', funct
 
     $pruner = new TestableTranslationPruner(
         config(),
-        app(TranslationRepository::class),
-        app(UsageScanner::class),
+        resolve(TranslationRepository::class),
+        resolve(UsageScanner::class),
         fallbackOverride: static fn () => $scanDir,
     );
 
@@ -400,9 +400,9 @@ it('uses injected fallback paths when configuration and inputs are empty', funct
     expect($result['unused_keys'])->toHaveKey('messages.orphan')
         ->and($result['unused_keys'])->not->toHaveKey('messages.used');
 
-    unlink($scanDir.'/usage.php');
+    Illuminate\Support\Facades\File::delete($scanDir.'/usage.php');
     rmdir($scanDir);
-    unlink($enDir.'/messages.php');
+    Illuminate\Support\Facades\File::delete($enDir.'/messages.php');
 
     config()->set('translation-pruner.paths', $fallbackOriginalPaths);
     config()->set('translation-pruner.exclude', $fallbackOriginalExclude);
@@ -421,8 +421,8 @@ it('returns no fallback paths when base path resolver fails', function () {
 
     $pruner = new TestableTranslationPruner(
         config(),
-        app(TranslationRepository::class),
-        app(UsageScanner::class),
+        resolve(TranslationRepository::class),
+        resolve(UsageScanner::class),
         baseOverride: static fn () => null,
     );
 
@@ -430,7 +430,7 @@ it('returns no fallback paths when base path resolver fails', function () {
 
     expect($result['unused_keys'])->toHaveKey('messages.nullBase');
 
-    unlink($enDir.'/messages.php');
+    Illuminate\Support\Facades\File::delete($enDir.'/messages.php');
     config()->set('translation-pruner.paths', $originalPaths);
 });
 

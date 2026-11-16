@@ -49,7 +49,7 @@ it('runs in dry run mode with --dry-run flag', function () {
     expect($translations)->toHaveKey('unused');
 
     // Cleanup
-    unlink($testDir.'/test.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/test.php');
     rmdir($testDir);
 });
 
@@ -106,7 +106,7 @@ it('can delete translations with force flag', function () {
         ->and($translations)->not->toHaveKey('unused');
 
     // Cleanup
-    unlink($testDir.'/test.php');
+    Illuminate\Support\Facades\File::delete($testDir.'/test.php');
     rmdir($testDir);
 });
 
@@ -133,9 +133,9 @@ it('honors custom path options', function () {
         ->expectsConfirmation('Delete these unused translations?', 'no')
         ->assertSuccessful();
 
-    unlink($configDir.'/uses.php');
+    Illuminate\Support\Facades\File::delete($configDir.'/uses.php');
     rmdir($configDir);
-    unlink($isolatedDir.'/noop.php');
+    Illuminate\Support\Facades\File::delete($isolatedDir.'/noop.php');
     rmdir($isolatedDir);
 
     config()->set('translation-pruner.paths', [
@@ -162,7 +162,7 @@ it('accepts single string path option and invalid configured paths', function ()
         ->expectsConfirmation('Delete these unused translations?', 'no')
         ->assertSuccessful();
 
-    unlink($tempPath.'/usage.php');
+    Illuminate\Support\Facades\File::delete($tempPath.'/usage.php');
     rmdir($tempPath);
 });
 

@@ -54,7 +54,7 @@ final class TestHelpers
         }
 
         /** @var Filesystem $filesystem */
-        $filesystem = app(Filesystem::class);
+        $filesystem = resolve(Filesystem::class);
 
         if (is_dir($state['temp'])) {
             $filesystem->deleteDirectory($state['temp']);

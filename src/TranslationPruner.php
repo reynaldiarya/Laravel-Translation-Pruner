@@ -17,12 +17,12 @@ class TranslationPruner
     /**
      * @var array<int, string>
      */
-    private array $excludePatterns = [];
+    private array $excludePatterns;
 
     /**
      * @var array<int, string>
      */
-    private array $defaultPaths = [];
+    private array $defaultPaths;
 
     public function __construct(
         ConfigRepository $config,
